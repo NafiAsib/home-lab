@@ -16,6 +16,17 @@ The lab is essentially made up of two main parts: a virtual machine on Oracle Cl
 - **RAM:** 12 GB DDR4 2666 MHz
 - **GPU:** Nvidia GeForce GTX 1050 4GB GDDR5
 
+Services that I self host:
+- Nginx
+- Certbot
+- Vaultwarden
+- Portainer
+- Uptime Kuma
+- Watchtower
+- Multiple Next.js, Express.js & NestJS app
+- Headscale
+- Tailscale
+
 <p align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="100px" height="auto" alt="NGINX">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original-wordmark.svg" width="100px" height="auto" alt="Docker">
