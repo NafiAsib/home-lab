@@ -27,6 +27,14 @@ Services that I self host:
 - Headscale
 - Tailscale
 
+## Lab - Local (N580VD)
+
+
+
+<p align="center">
+  <img src="https://github.com/NafiAsib/home-lab/assets/38901581/8afd2919-1b1c-4aff-9669-4df96ed2f210" width="400px" height="auto" alt="local-lab">
+</p>
+
 <p align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="100px" height="auto" alt="NGINX">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original-wordmark.svg" width="100px" height="auto" alt="Docker">
