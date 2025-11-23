@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-test
+  labels:
+    app: deploy-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploy-test
+  template:
+    metadata:
+      labels:
+        app: deploy-test
+    spec:
+      containers:
+        - name: deploy-test
+          image: ghcr.io/nafiasib/deploy-test:latest
+          ports:
+            - containerPort: 3000
+              name: deploy-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deploy-test-svc
+  labels:
+    app: deploy-test
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: deploy-port
+  selector:
+    app: deploy-test
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deploy-test-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: ${DEPLOY_TEST_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: deploy-test-svc
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - ${DEPLOY_TEST_DOMAIN}
+      secretName: traefik-tls

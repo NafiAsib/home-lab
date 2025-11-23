@@ -1,0 +1,181 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kanboard-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kanboard-plugins
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kanboard-ssl
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kanboard-db
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kanboard-db-secret
+type: Opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: "${KANBOARD_MYSQL_ROOT_PASSWORD}"
+  MYSQL_DATABASE: "${KANBOARD_MYSQL_DATABASE}"
+  MYSQL_USER: "${KANBOARD_MYSQL_USER}"
+  MYSQL_PASSWORD: "${KANBOARD_MYSQL_PASSWORD}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanboard-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kanboard-db
+  template:
+    metadata:
+      labels:
+        app: kanboard-db
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:latest
+          args: ["--default-authentication-plugin=mysql_native_password"]
+          envFrom:
+            - secretRef:
+                name: kanboard-db-secret
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: "/var/lib/mysql"
+              name: kanboard-db-storage
+      volumes:
+        - name: kanboard-db-storage
+          persistentVolumeClaim:
+            claimName: kanboard-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kanboard-db
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: kanboard-db
+  clusterIP: None # Headless service for direct pod-to-pod communication
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kanboard
+  template:
+    metadata:
+      labels:
+        app: kanboard
+    spec:
+      containers:
+        - name: kanboard
+          image: kanboard/kanboard:latest
+          env:
+            - name: DATABASE_URL
+              value: "mysql://${KANBOARD_MYSQL_USER}:${KANBOARD_MYSQL_PASSWORD}@kanboard-db/${KANBOARD_MYSQL_DATABASE}"
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          volumeMounts:
+            - mountPath: "/var/www/app/data"
+              name: kanboard-data
+            - mountPath: "/var/www/app/plugins"
+              name: kanboard-plugins
+            - mountPath: "/etc/nginx/ssl"
+              name: kanboard-ssl
+      volumes:
+        - name: kanboard-data
+          persistentVolumeClaim:
+            claimName: kanboard-data
+        - name: kanboard-plugins
+          persistentVolumeClaim:
+            claimName: kanboard-plugins
+        - name: kanboard-ssl
+          persistentVolumeClaim:
+            claimName: kanboard-ssl
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kanboard
+spec:
+  selector:
+    app: kanboard
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 4433
+      targetPort:
+        443
+        #  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kanboard-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: ${KANBOARD_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kanboard
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - ${KANBOARD_DOMAIN}
+      secretName: kanboard-tls
