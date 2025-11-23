@@ -2,22 +2,32 @@
 
 This repository is the central hub for all the setup files and comprehensive details outlining the architecture of my homelab.
 
-The lab is essentially made up of two main parts: a virtual machine on Oracle Cloud and an old laptop.
+The lab is essentially made up of three main parts: 
+
+- a virtual machine on Oracle Cloud,
+- an old laptop,
+- desktop computer.
 
 **Virtual Machine (Oracle Cloud - Ampere A1)**
 
-- **CPU:** Ampere A1 (ARM-based)
+- **CPU:** Ampere A1 (ARM-based, 4 cores)
 - **RAM:** 24 GB
-- **CPU Cores:** 4 cores
 
 **Laptop (Asus Vivobook Pro 15 - N580VD)**
 
 - **CPU:** Intel Core i5-7300HQ (4 cores, 4 threads)
 - **RAM:** 12 GB DDR4 2666 MHz
-- **GPU:** Nvidia GeForce GTX 1050 4GB GDDR5
+- **GPU:** NVIDIA GeForce GTX 1050 4GB GDDR5
+
+**Personal Computer**
+
+- **CPU:** AMD Ryzen 7 7800X3D(8 cores, 16 threads)
+- **RAM:** 32 GB DDR5 6000 MHz
+- **GPU:** NVIDIA GeForce RTX 3090 Ti 24GB GDDR6X
 
 Services that I self host:
 
+- llama.cpp
 - Nginx
 - Certbot
 - Vaultwarden
@@ -26,7 +36,6 @@ Services that I self host:
 - Watchtower
 - Multiple Next.js, Express.js & NestJS app
 - Headscale
-- Tailscale
 
 ## Lab - Local (N580VD)
 
@@ -36,7 +45,7 @@ Services that I self host:
 
 ### Services
 
-<table>
+<!-- <table>
     <tr>
         <th>Icon</th>
         <th>Name</th>
@@ -87,7 +96,7 @@ Services that I self host:
         <td><a href="https://www.vaultproject.io">Vault</a></td>
         <td>Secrets and encryption management system</td>
     </tr>
-</table>
+</table> -->
 
 <img width="1301" alt="homepage-dashboard" src="https://github.com/NafiAsib/home-lab/assets/38901581/a6c5505a-7881-425e-a3af-f20cab32c89e">
 
